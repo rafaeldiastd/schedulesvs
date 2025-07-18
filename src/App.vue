@@ -15,9 +15,8 @@
       <h2 v-if="linkId"> {{ currentLinkName }}</h2>
       <h2 v-if="!linkId"> {{ newLinkName }}</h2>
 
-      <span class="text-xs text-neutral-300 p-6 text-center"> Choose the time that will be available for each ministry.
-        Enter your ID and sign up. Remember to also sign up through the game.
-      </span>
+      <span class="text-md text-neutral-300 p-6 text-center">Choose the time that will be available for each ministry. Enter your ID and sign up. Remember to also sign up through the game.      </span>
+      <span class="text-xs text-neutral-300 p-6 text-center">This project was developed by the ᴹᴬᴺᴱᴿᴼ of the state 1898 to help presidents organize the schedules of each player during the preparation of the SvS</span>
       <div v-if="!linkId && !accessKey" class="flex flex-col gap-2 bg-neutral-800 p-8 rounded-2xl  text-center">
         <h2 class="text-xl font-normal">Create new link</h2>
         <p class="text-sm text-muted-foreground">Generate a new link for players to schedule.</p>
@@ -116,9 +115,9 @@
     </div>
 
     <div v-if="showSignupModal" class="fixed top-auto left-auto bg-neutral-800 p-6 z-50 rounded-2xl">
-      <h2 class="text-xl font-normal">Alistar-se para {{ currentSignupRole === 'education' ? 'Ministro da Educação' :
-        'Vice Presidente' }}</h2>
-      <p class="text-sm text-muted-foreground">Horário selecionado: {{ currentSignupSlot }} UTC </p>
+      <h2 class="text-xl font-normal">Sign up for {{ currentSignupRole === 'education' ? 'Minister Education' :
+        'Vice President' }}</h2>
+      <p class="text-sm text-muted-foreground">Selected time: {{ currentSignupSlot }} UTC </p>
       <div class="grid gap-4 py-4">
         <div class="flex flex-col gap-1">
           <input id="playerId" v-model="signupPlayerId" type="text" placeholder="Player ID"
@@ -126,16 +125,15 @@
         </div>
         <div class="flex items-center justify-between gap-2 mt-4">
           <button @click="closeSignupModal" class="border border-neutral-500 rounded-2xl  text-white px-4 py-2">
-            Cancelar
+            Cancel
           </button>
           <button @click="signupPlayer" :disabled="loading"
             class="border border-blue-500 rounded-2xl bg-blue-600 text-white px-4 py-2">
             <template v-if="loading">
-
-              Alisando...
+              Loading...
             </template>
             <template v-else>
-              Confirmar Inscrição
+              Sign up
             </template>
           </button>
         </div>
@@ -271,7 +269,7 @@ const createLink = async () => {
   loading.value = true;
 
   if (!newLinkName.value.trim()) {
-    errorMessage.value = 'Por favor, insira um nome para o link.';
+    errorMessage.value = 'Please enter a name for the link.';
     loading.value = false;
     return;
   }
@@ -288,11 +286,11 @@ const createLink = async () => {
 
     generatedLink.value = `${window.location.origin}?linkId=${data.id}`;
     generatedAccessKey.value = newAccessKey;
-    successMessage.value = 'Link criado com sucesso!';
+    successMessage.value = 'Link created successfully!';
     setTimeout(() => successMessage.value = '', 3000);
   } catch (error) {
-    console.error('Erro ao criar link:', error);
-    errorMessage.value = `Erro ao criar link: ${error.message}`;
+    console.error('Error creating link:', error);
+    errorMessage.value = `Error creating link: ${error.message}`;
   } finally {
     loading.value = false;
   }
@@ -311,8 +309,8 @@ const fetchLinkDetails = async () => {
     if (error) throw error;
     currentLinkName.value = data.name;
   } catch (error) {
-    console.error('Erro ao buscar detalhes do link:', error);
-    errorMessage.value = `Link não encontrado ou erro: ${error.message}`;
+    console.error('Error fetching link details:', error);
+    errorMessage.value = `Link not found or error: ${error.message}`;
     setTimeout(() => errorMessage.value = '', 3000);
 
     linkId.value = null; // Clear linkId to show President view
@@ -343,8 +341,8 @@ const fetchSlots = async () => {
       }
     });
   } catch (error) {
-    console.error('Erro ao buscar slots:', error);
-    errorMessage.value = `Erro ao carregar horários: ${error.message}`;
+    console.error('Error fetching slots:', error);
+    errorMessage.value = `Error loading time slots: ${error.message}`;
     setTimeout(() => errorMessage.value = '', 3000);
   } finally {
     loading.value = false;
@@ -370,13 +368,13 @@ const signupPlayer = async () => {
   loading.value = true;
 
   if (!signupPlayerId.value.trim()) {
-    signupError.value = 'ID do jogador é obrigatório.';
+    signupError.value = 'Player ID is required.';
     loading.value = false;
     return;
   }
 
   if (playerHasSlot(currentSignupRole.value)) {
-    signupError.value = `Você já está alistado como ${currentSignupRole.value === 'education' ? 'Ministro da Educação' : 'Vice Presidente'} neste link.`;
+    signupError.value = `You are already signed up as ${currentSignupRole.value === 'education' ? 'Minister of Education' : 'Vice President'} for this link.`;
     loading.value = false;
     return;
   }
@@ -385,7 +383,7 @@ const signupPlayer = async () => {
     const playerInfo = await getPlayerInfo(signupPlayerId.value);
 
     if (!playerInfo || playerInfo.nickname === 'Unknown Player') {
-      signupError.value = 'ID de jogador inválido ou não encontrado.';
+      signupError.value = 'Invalid or unknown player ID.';
       loading.value = false;
       return;
     }
@@ -408,12 +406,12 @@ const signupPlayer = async () => {
 
     if (error) {
       if (error.code === '23505') {
-        signupError.value = 'Este horário já está ocupado ou você já se alistou para este cargo.';
+        signupError.value = 'This time slot is already taken or you are already signed up for this role.';
       } else {
         throw error;
       }
     } else {
-      successMessage.value = 'Inscrição realizada com sucesso!';
+      successMessage.value = 'Sign up successful!';
       setTimeout(() => successMessage.value = '', 3000);
       localStorage.setItem('player_name', finalPlayerName); // Salve o nome final no localStorage
       localStorage.setItem('player_id', signupPlayerId.value);
@@ -421,8 +419,8 @@ const signupPlayer = async () => {
       await fetchSlots();
     }
   } catch (error) {
-    console.error('Erro ao alistar jogador:', error);
-    signupError.value = `Erro ao alistar: ${error.message}`;
+    console.error('Error signing up player:', error);
+    signupError.value = `Error signing up: ${error.message}`;
   } finally {
     loading.value = false;
   }
@@ -435,7 +433,7 @@ const removePlayer = async (slotId, role) => {
 
   // Client-side access key verification (less secure, for demo purposes)
   if (!accessKey.value) {
-    errorMessage.value = 'Chave de acesso do Presidente não fornecida ou inválida.';
+    errorMessage.value = 'President access key not provided or invalid.';
     setTimeout(() => errorMessage.value = '', 3000);
     loading.value = false;
     return;
@@ -451,7 +449,7 @@ const removePlayer = async (slotId, role) => {
       .single();
 
     if (linkError || !linkData) {
-      errorMessage.value = 'Chave de acesso do Presidente inválida para este link.';
+      errorMessage.value = 'Invalid President access key for this link.';
       setTimeout(() => errorMessage.value = '', 3000);
       loading.value = false;
       return;
@@ -464,12 +462,12 @@ const removePlayer = async (slotId, role) => {
 
     if (error) throw error;
 
-    successMessage.value = 'Jogador removido com sucesso!';
+    successMessage.value = 'Player removed successfully!';
     setTimeout(() => successMessage.value = '', 3000);
     await fetchSlots(); // Refresh slots
   } catch (error) {
-    console.error('Erro ao remover jogador:', error);
-    errorMessage.value = `Erro ao remover jogador: ${error.message}`;
+    console.error('Error removing player:', error);
+    errorMessage.value = `Error removing player: ${error.message}`;
     setTimeout(() => errorMessage.value = '', 3000);
   } finally {
     loading.value = false;
@@ -482,7 +480,7 @@ const verifyAccessKey = async () => {
   successMessage.value = '';
 
   if (!inputAccessKey.value.trim()) {
-    accessKeyError.value = 'Por favor, insira a chave de acesso.';
+    accessKeyError.value = 'Please enter the access key.';
     return;
   }
 
@@ -495,27 +493,27 @@ const verifyAccessKey = async () => {
       .single();
 
     if (error || !data) {
-      accessKeyError.value = 'Chave de acesso inválida.';
+      accessKeyError.value = 'Invalid access key.';
       setTimeout(() => accessKeyError.value = '', 3000);
     } else {
       accessKey.value = inputAccessKey.value;
-      successMessage.value = 'Acesso de Presidente concedido!';
+      successMessage.value = 'President access granted!';
       setTimeout(() => successMessage.value = '', 3000);
       inputAccessKey.value = ''; // Clear input
     }
   } catch (error) {
-    console.error('Erro ao verificar chave de acesso:', error);
-    accessKeyError.value = 'Erro ao verificar chave de acesso.';
+    console.error('Error verifying access key:', error);
+    accessKeyError.value = 'Error verifying access key.';
     setTimeout(() => accessKeyError.value = '', 3000);
   }
 };
 
 const copyToClipboard = (text) => {
   navigator.clipboard.writeText(text).then(() => {
-    successMessage.value = 'Copiado para a área de transferência!';
+    successMessage.value = 'Copied to clipboard!';
     setTimeout(() => successMessage.value = '', 3000);
   }).catch(err => {
-    errorMessage.value = 'Falha ao copiar.';
+    errorMessage.value = 'Failed to copy.';
     setTimeout(() => errorMessage.value = '', 3000);
     console.error('Could not copy text: ', err);
   });
