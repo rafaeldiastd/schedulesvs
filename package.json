@@ -1,0 +1,26 @@
+{
+  "name": "svs-list",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.52.0",
+    "@tailwindcss/vite": "^4.1.11",
+    "axios": "^1.10.0",
+    "crypto-js": "^4.2.0",
+    "lucide-vue-next": "^0.525.0",
+    "tailwindcss": "^4.1.11",
+    "uuid": "^11.1.0",
+    "vue": "^3.5.17"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.0",
+    "vite": "^7.0.0",
+    "vite-plugin-vue-devtools": "^7.7.7"
+  }
+}

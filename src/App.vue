@@ -1,0 +1,544 @@
+<template>
+
+  <div class="grid grid-cols-12 gap-4">
+    <p v-if="successMessage"
+      class="text-green-300 text-center mt-4 fixed top-4 left-4 bg-neutral-800 rounded-2xl border border-neutral-500 px-4 py-2">
+      {{ successMessage }}</p>
+    <p v-if="errorMessage"
+      class="text-red-300 text-center mt-4 fixed top-4 left-4 bg-neutral-800 rounded-2xl border border-neutral-500 px-4 py-2">
+      {{ errorMessage }}</p>
+
+    <div class="col-span-12 flex flex-col items-center gap-2">
+      <h1 class="text-3xl font-bold text-neutral-200">
+        WOS Scheduler
+      </h1>
+      <h2 v-if="linkId"> {{ currentLinkName }}</h2>
+      <h2 v-if="!linkId"> {{ newLinkName }}</h2>
+
+      <span class="text-xs text-neutral-300 p-6 text-center"> Choose the time that will be available for each ministry.
+        Enter your ID and sign up. Remember to also sign up through the game.
+      </span>
+      <div v-if="!linkId && !accessKey" class="flex flex-col gap-2 bg-neutral-800 p-8 rounded-2xl  text-center">
+        <h2 class="text-xl font-normal">Create new link</h2>
+        <p class="text-sm text-muted-foreground">Generate a new link for players to schedule.</p>
+        <div class="flex gap-2 items-center justify-center">
+          <input id="linkName" v-model="newLinkName" type="text" placeholder="Name for the link"
+            class="border rounded-2xl bg-neutral-800 border-neutral-600  text-white px-4 py-2" />
+          <button @click="createLink" :disabled="loading"
+            class="border border-blue-500 rounded-2xl bg-blue-600 text-white px-4 py-2">
+            <template v-if="loading">
+              Creating...
+            </template>
+            <template v-else>
+              Create link
+            </template>
+          </button>
+        </div>
+
+      </div>
+
+      <div v-if="generatedLink" class="flex flex-col gap-2 mt-4">
+        <div class="p-4 flex flex-col gap-2 items-center">
+          <a :href="generatedLink" class="text-green-300">{{ generatedLink }}</a>
+          <button @click="copyToClipboard(generatedAccessKey)" class="rounded-2xl bg-neutral-800 text-white px-8 py-1">
+            Key: {{ generatedAccessKey || 'N/A' }}
+          </button>
+          <span class="text-xs text-neutral-400">Keep this key safe. It is required to remove players.</span>
+        </div>
+      </div>
+
+
+    </div>
+
+    <div v-if="linkId" class="md:col-span-6 col-span-12 flex flex-col gap-2 bg-neutral-900 p-8 rounded-2xl">
+      <h2 class="text-2xl font-bold text-amber-500 text-center">Minister Education</h2>
+      <p class="text-xs text-neutral-300 text-center pb-4">Training Capacity: +200 <br />Training Speed: +50%</p>
+      <div v-for="slot in timeSlots" :key="`education - ${slot}`">
+        <template v-if="educationSlots[slot]">
+          <div class="flex gap-2">
+            <div
+              class="w-full flex items-center justify-between gap-2 text-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
+              <div class="flex items-center gap-2">
+                <img :src="educationSlots[slot].avatar_image" alt="Avatar" class="w-6 h-6 rounded-full" />
+                <img :src="educationSlots[slot].stove_lv_content" alt="Stove Level" class="w-6 h-6 rounded-full" />
+                <span class=""> {{ educationSlots[slot].player_name }}</span>
+              </div>
+              <span class="">{{ educationSlots[slot].player_id }}</span>
+            </div>
+            <button v-if="accessKey" @click="removePlayer(educationSlots[slot].id, 'education')"
+              class="border border-red-400 rounded-2xl bg-red-600 text-white p-2">
+              <XIcon class="w-4 h-4" />
+            </button>
+          </div>
+        </template>
+        <template v-else>
+          <button v-if="linkId" @click="openSignupModal('education', slot)" :disabled="playerHasSlot('education')"
+            class=" w-full border border-neutral-700 rounded-2xl bg-neutral-800 text-white px-4 py-2">{{ slot }}
+            UTC</button>
+        </template>
+      </div>
+    </div>
+    <div v-if="linkId" class="md:col-span-6 col-span-12 flex flex-col gap-2 bg-neutral-900 p-8 rounded-2xl">
+      <h2 class="text-2xl font-bold text-amber-500 text-center">Vice President</h2>
+      <p class="text-xs text-neutral-300 text-center pb-4"> Construction Speed: +10% <br /> Search Speed: +10% <br />
+        Training Speed: +10%</p>
+      <div v-for="slot in timeSlots" :key="`vice - president - ${slot}`">
+        <template v-if="vicePresidentSlots[slot]">
+          <div class="flex gap-2">
+            <span
+              class="w-full text-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
+              {{ vicePresidentSlots[slot].player_name }} (ID:{{ vicePresidentSlots[slot].player_id }})</span>
+            <button v-if="accessKey" @click="removePlayer(vicePresidentSlots[slot].id, 'vice_president')"
+              class="border border-red-400 rounded-2xl bg-red-600 text-white p-2">
+              <XIcon class="w-4 h-4" />
+            </button>
+          </div>
+        </template>
+        <template v-else>
+
+          <button v-if="linkId" @click="openSignupModal('vice_president', slot)"
+            :disabled="playerHasSlot('vice_president')"
+            class=" w-full border border-neutral-700 rounded-2xl bg-neutral-800 text-white px-4 py-2">
+            {{ slot }} UTC
+          </button>
+        </template>
+      </div>
+    </div>
+    <div v-if="linkId" class="flex col-span-full gap-2 items-center py-8 border-t border-neutral-700">
+      <input v-model="inputAccessKey" type="password" placeholder="President Key"
+        class="border rounded-2xl bg-neutral-800 border-neutral-600  text-white px-4 py-2" />
+
+      <button @click="verifyAccessKey" class="border border-blue-500 rounded-2xl bg-blue-600 text-white px-4 py-2">
+        Check Access Key
+      </button>
+      <p v-if="accessKeyError" class="text-red-500 text-sm mt-2">{{ accessKeyError }}</p>
+
+    </div>
+
+    <div v-if="showSignupModal" class="fixed top-auto left-auto bg-neutral-800 p-6 z-50 rounded-2xl">
+      <h2 class="text-xl font-normal">Alistar-se para {{ currentSignupRole === 'education' ? 'Ministro da Educação' :
+        'Vice Presidente' }}</h2>
+      <p class="text-sm text-muted-foreground">Horário selecionado: {{ currentSignupSlot }} UTC </p>
+      <div class="grid gap-4 py-4">
+        <div class="flex flex-col gap-1">
+          <input id="playerId" v-model="signupPlayerId" type="text" placeholder="Player ID"
+            class="border rounded-2xl bg-neutral-800 border-neutral-600  text-white px-4 py-2" />
+        </div>
+        <div class="flex items-center justify-between gap-2 mt-4">
+          <button @click="closeSignupModal" class="border border-neutral-500 rounded-2xl  text-white px-4 py-2">
+            Cancelar
+          </button>
+          <button @click="signupPlayer" :disabled="loading"
+            class="border border-blue-500 rounded-2xl bg-blue-600 text-white px-4 py-2">
+            <template v-if="loading">
+
+              Alisando...
+            </template>
+            <template v-else>
+              Confirmar Inscrição
+            </template>
+          </button>
+        </div>
+        <p v-if="signupError" class="text-red-500 text-sm">{{ signupError }}</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { createClient } from '@supabase/supabase-js';
+import { v4 as uuidv4 } from 'uuid';
+import { XIcon } from 'lucide-vue-next';
+import axios from 'axios'; // Import Axios
+import CryptoJS from 'crypto-js'; // You'll need this for generateSign
+
+// Supabase Client Initialization
+// Substitua com suas variáveis de ambiente do Vercel
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const wosKey = import.meta.env.VITE_WOS_API_SECRET_KEY || process.env.WOS_API_SECRET_KEY || 'YOUR_SECRET_KEY_HERE'; // Load from environment or provide a default
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// State Variables
+const newLinkName = ref('');
+const generatedLink = ref('');
+const generatedAccessKey = ref('');
+const loading = ref(false);
+const errorMessage = ref('');
+const successMessage = ref('');
+
+const linkId = ref('');
+const accessKey = ref(''); // This will be set if the URL contains the access key for admin view
+const currentLinkName = ref('Carregando...');
+
+const timeSlots = ref([]);
+const educationSlots = ref({});
+const vicePresidentSlots = ref({});
+
+const showSignupModal = ref(false);
+const currentSignupRole = ref('');
+const currentSignupSlot = ref('');
+const signupPlayerName = ref('');
+const signupPlayerId = ref('');
+const signupError = ref('');
+
+const inputAccessKey = ref(''); // For President to input key
+const accessKeyError = ref('');
+
+
+const generateSign = (data) => {
+  const sortedKeys = Object.keys(data).sort();
+  const signStr = sortedKeys.map(key => `${key}=${data[key]}`).join('&') + wosKey;
+  return CryptoJS.MD5(signStr).toString();
+};
+
+const login = async (playerId) => {
+  const loginData = {
+    fid: playerId,
+    time: Date.now(),
+  };
+
+  try {
+    const signedData = { ...loginData, sign: generateSign(loginData) };
+    const response = await axios.post('https://wos-giftcode-api.centurygame.com/api/player', signedData);
+
+    if (response.data.err_code === 40009) {
+      throw new Error('User not logged in. Please login first.');
+    }
+
+    return true;
+  } catch (err) {
+    console.error(`Login failed for Player ID ${playerId}`, err);
+    return false;
+  }
+};
+
+const getPlayerInfo = async (playerId) => {
+  const data = {
+    fid: playerId,
+    time: Date.now(),
+  };
+
+  try {
+    const signedData = { ...data, sign: generateSign(data) };
+    const response = await axios.post('https://wos-giftcode-api.centurygame.com/api/player', signedData);
+    if (response.data.err_code === 40001) {
+      throw new Error('Invalid player ID');
+    }
+    return {
+      nickname: response.data.data.nickname || 'Unknown Player',
+      stove_lv_content: response.data.data.stove_lv_content || null,
+      avatar_image: response.data.data.avatar_image || null
+    }
+  } catch (err) {
+    console.error(err);
+    return 'Unknown Player';
+  }
+};
+
+const playerHasSlot = (role) => {
+  const playerId = signupPlayerId.value || localStorage.getItem('player_id'); // Check if player already signed up in this session
+  if (!playerId) return false;
+
+  if (role === 'education') {
+    return Object.values(educationSlots.value).some(slot => slot.player_id === playerId);
+  } else if (role === 'vice_president') {
+    return Object.values(vicePresidentSlots.value).some(slot => slot.player_id === playerId);
+  }
+  return false;
+};
+
+// Functions
+const generateTimeSlots = () => {
+  const slots = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      const startHour = String(h).padStart(2, '0');
+      const startMinute = String(m).padStart(2, '0');
+      const endHour = String(h + (m === 30 ? 1 : 0)).padStart(2, '0');
+      const endMinute = String((m + 30) % 60).padStart(2, '0');
+      slots.push(`${startHour}: ${startMinute} - ${endHour}: ${endMinute}`);
+    }
+  }
+  timeSlots.value = slots;
+};
+
+const createLink = async () => {
+  errorMessage.value = '';
+  successMessage.value = '';
+  loading.value = true;
+
+  if (!newLinkName.value.trim()) {
+    errorMessage.value = 'Por favor, insira um nome para o link.';
+    loading.value = false;
+    return;
+  }
+
+  const newAccessKey = uuidv4();
+  try {
+    const { data, error } = await supabase
+      .from('links')
+      .insert({ name: newLinkName.value, access_key: newAccessKey })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    generatedLink.value = `${window.location.origin}?linkId=${data.id}`;
+    generatedAccessKey.value = newAccessKey;
+    successMessage.value = 'Link criado com sucesso!';
+    setTimeout(() => successMessage.value = '', 3000);
+  } catch (error) {
+    console.error('Erro ao criar link:', error);
+    errorMessage.value = `Erro ao criar link: ${error.message}`;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchLinkDetails = async () => {
+  errorMessage.value = '';
+  loading.value = true;
+  try {
+    const { data, error } = await supabase
+      .from('links')
+      .select('name')
+      .eq('id', linkId.value)
+      .single();
+
+    if (error) throw error;
+    currentLinkName.value = data.name;
+  } catch (error) {
+    console.error('Erro ao buscar detalhes do link:', error);
+    errorMessage.value = `Link não encontrado ou erro: ${error.message}`;
+    setTimeout(() => errorMessage.value = '', 3000);
+
+    linkId.value = null; // Clear linkId to show President view
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchSlots = async () => {
+  errorMessage.value = '';
+  loading.value = true;
+  try {
+    const { data, error } = await supabase
+      .from('slots')
+      .select('*')
+      .eq('link_id', linkId.value);
+
+    if (error) throw error;
+
+    educationSlots.value = {};
+    vicePresidentSlots.value = {};
+
+    data.forEach(slot => {
+      if (slot.role === 'education') {
+        educationSlots.value[slot.time_slot] = slot;
+      } else if (slot.role === 'vice_president') {
+        vicePresidentSlots.value[slot.time_slot] = slot;
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao buscar slots:', error);
+    errorMessage.value = `Erro ao carregar horários: ${error.message}`;
+    setTimeout(() => errorMessage.value = '', 3000);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const openSignupModal = (role, slot) => {
+  currentSignupRole.value = role;
+  currentSignupSlot.value = slot;
+  signupPlayerId.value = localStorage.getItem('player_id') || '';
+  signupError.value = '';
+  showSignupModal.value = true;
+};
+
+const closeSignupModal = () => {
+  showSignupModal.value = false;
+  signupPlayerId.value = '';
+  signupError.value = '';
+};
+
+const signupPlayer = async () => {
+  signupError.value = '';
+  loading.value = true;
+
+  if (!signupPlayerId.value.trim()) {
+    signupError.value = 'ID do jogador é obrigatório.';
+    loading.value = false;
+    return;
+  }
+
+  if (playerHasSlot(currentSignupRole.value)) {
+    signupError.value = `Você já está alistado como ${currentSignupRole.value === 'education' ? 'Ministro da Educação' : 'Vice Presidente'} neste link.`;
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const playerInfo = await getPlayerInfo(signupPlayerId.value);
+
+    if (!playerInfo || playerInfo.nickname === 'Unknown Player') {
+      signupError.value = 'ID de jogador inválido ou não encontrado.';
+      loading.value = false;
+      return;
+    }
+
+    // Use o nickname retornado pela API para garantir a consistência
+    const finalPlayerName = playerInfo.nickname;
+
+    const { error } = await supabase
+      .from('slots')
+      .insert({
+        link_id: linkId.value,
+        role: currentSignupRole.value,
+        time_slot: currentSignupSlot.value,
+        player_name: finalPlayerName, // Usando o nome da API
+        player_id: signupPlayerId.value,
+        stove_lv_content: playerInfo.stove_lv_content,     // Novo campo
+        avatar_image: playerInfo.avatar_image // Novo campo
+        // Adicione outros campos aqui conforme você adicionou na sua tabela
+      });
+
+    if (error) {
+      if (error.code === '23505') {
+        signupError.value = 'Este horário já está ocupado ou você já se alistou para este cargo.';
+      } else {
+        throw error;
+      }
+    } else {
+      successMessage.value = 'Inscrição realizada com sucesso!';
+      setTimeout(() => successMessage.value = '', 3000);
+      localStorage.setItem('player_name', finalPlayerName); // Salve o nome final no localStorage
+      localStorage.setItem('player_id', signupPlayerId.value);
+      closeSignupModal();
+      await fetchSlots();
+    }
+  } catch (error) {
+    console.error('Erro ao alistar jogador:', error);
+    signupError.value = `Erro ao alistar: ${error.message}`;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const removePlayer = async (slotId, role) => {
+  errorMessage.value = '';
+  successMessage.value = '';
+  loading.value = true;
+
+  // Client-side access key verification (less secure, for demo purposes)
+  if (!accessKey.value) {
+    errorMessage.value = 'Chave de acesso do Presidente não fornecida ou inválida.';
+    setTimeout(() => errorMessage.value = '', 3000);
+    loading.value = false;
+    return;
+  }
+
+  try {
+    // Verify access key against the database
+    const { data: linkData, error: linkError } = await supabase
+      .from('links')
+      .select('id')
+      .eq('id', linkId.value)
+      .eq('access_key', accessKey.value)
+      .single();
+
+    if (linkError || !linkData) {
+      errorMessage.value = 'Chave de acesso do Presidente inválida para este link.';
+      setTimeout(() => errorMessage.value = '', 3000);
+      loading.value = false;
+      return;
+    }
+
+    const { error } = await supabase
+      .from('slots')
+      .delete()
+      .eq('id', slotId);
+
+    if (error) throw error;
+
+    successMessage.value = 'Jogador removido com sucesso!';
+    setTimeout(() => successMessage.value = '', 3000);
+    await fetchSlots(); // Refresh slots
+  } catch (error) {
+    console.error('Erro ao remover jogador:', error);
+    errorMessage.value = `Erro ao remover jogador: ${error.message}`;
+    setTimeout(() => errorMessage.value = '', 3000);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const verifyAccessKey = async () => {
+  accessKeyError.value = '';
+  errorMessage.value = '';
+  successMessage.value = '';
+
+  if (!inputAccessKey.value.trim()) {
+    accessKeyError.value = 'Por favor, insira a chave de acesso.';
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('links')
+      .select('id')
+      .eq('id', linkId.value)
+      .eq('access_key', inputAccessKey.value)
+      .single();
+
+    if (error || !data) {
+      accessKeyError.value = 'Chave de acesso inválida.';
+      setTimeout(() => accessKeyError.value = '', 3000);
+    } else {
+      accessKey.value = inputAccessKey.value;
+      successMessage.value = 'Acesso de Presidente concedido!';
+      setTimeout(() => successMessage.value = '', 3000);
+      inputAccessKey.value = ''; // Clear input
+    }
+  } catch (error) {
+    console.error('Erro ao verificar chave de acesso:', error);
+    accessKeyError.value = 'Erro ao verificar chave de acesso.';
+    setTimeout(() => accessKeyError.value = '', 3000);
+  }
+};
+
+const copyToClipboard = (text) => {
+  navigator.clipboard.writeText(text).then(() => {
+    successMessage.value = 'Copiado para a área de transferência!';
+    setTimeout(() => successMessage.value = '', 3000);
+  }).catch(err => {
+    errorMessage.value = 'Falha ao copiar.';
+    setTimeout(() => errorMessage.value = '', 3000);
+    console.error('Could not copy text: ', err);
+  });
+};
+
+// On component mount
+onMounted(() => {
+  generateTimeSlots();
+  const urlParams = new URLSearchParams(window.location.search);
+  const idFromUrl = urlParams.get('linkId');
+  const keyFromUrl = urlParams.get('accessKey'); // Optional: for direct admin link
+
+  if (idFromUrl) {
+    linkId.value = idFromUrl;
+    if (keyFromUrl) {
+      accessKey.value = keyFromUrl;
+      inputAccessKey.value = keyFromUrl; // Pre-fill for convenience
+      verifyAccessKey(); // Automatically verify if key is in URL
+    }
+    fetchLinkDetails();
+    fetchSlots();
+  }
+});
+</script>
+
+<style></style>
