@@ -86,13 +86,16 @@
       <div v-for="slot in timeSlots" :key="`vice - president - ${slot}`">
         <template v-if="vicePresidentSlots[slot]">
           <div class="flex gap-2">
-            <span
-              class="w-full text-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
-              {{ vicePresidentSlots[slot].player_name }} (ID:{{ vicePresidentSlots[slot].player_id }})</span>
-            <button v-if="accessKey" @click="removePlayer(vicePresidentSlots[slot].id, 'vice_president')"
-              class="border border-red-400 rounded-2xl bg-red-600 text-white p-2">
-              <XIcon class="w-4 h-4" />
-            </button>
+             <div
+              class="w-full flex items-center justify-between gap-2 text-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
+              <div class="flex items-center gap-2">
+                <img :src="vicePresidentSlots[slot].avatar_image" alt="Avatar" class="w-6 h-6 rounded-full" />
+                <img v-if="vicePresidentSlots[slot].stove_lv_content" :src="vicePresidentSlots[slot].stove_lv_content" alt="Stove Level" class="w-6 h-6 rounded-full" />
+                <img v-else="vicePresidentSlots[slot].stove_lv" :src="vicePresidentSlots[slot].stove_lv" alt="Stove Level" class="w-6 h-6 rounded-full" />
+                <span class=""> {{ vicePresidentSlots[slot].player_name }}</span>
+              </div>
+              <span class="">{{ vicePresidentSlots[slot].player_id }}</span>
+            </div>
           </div>
         </template>
         <template v-else>
@@ -237,6 +240,7 @@ const getPlayerInfo = async (playerId) => {
       return {
         nickname: response.data.data.nickname || 'Unknown Player',
         stove_lv_content: response.data.data.stove_lv_content || null,
+        stove_lv: response.data.data.stove_lv || null,
         avatar_image: response.data.data.avatar_image || null
       };
     } else {
@@ -414,6 +418,7 @@ const signupPlayer = async () => {
         player_name: finalPlayerName, // Usando o nome da API
         player_id: signupPlayerId.value,
         stove_lv_content: playerInfo.stove_lv_content,     // Novo campo
+        stove_lv: playerInfo.stove_lv,     // Novo campo
         avatar_image: playerInfo.avatar_image // Novo campo
         // Adicione outros campos aqui conforme você adicionou na sua tabela
       });
