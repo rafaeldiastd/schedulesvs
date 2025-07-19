@@ -15,9 +15,9 @@
       <h2 v-if="linkId"> {{ currentLinkName }}</h2>
       <h2 v-if="!linkId"> {{ newLinkName }}</h2>
 
-      <span class="text-md text-neutral-300 p-6 text-center">Choose the time that will be available for each ministry.
-        Enter your ID and sign up. Remember to also sign up through the game. </span>
-      <span class="text-xs text-neutral-300 p-6 text-center">This project was developed by the ᴹᴬᴺᴱᴿᴼ of the state 1898
+      <span class="text-md text-neutral-300 text-center">Choose the time that will be available for each ministry.
+        Enter your ID and sign up. Remember to also sign up through the game.</span>
+      <span class="text-xs text-neutral-300 p-2 text-center">This project was developed by the ᴹᴬᴺᴱᴿᴼ of the state 1898
         to help presidents organize the schedules of each player during the preparation of the SvS</span>
       <div v-if="!linkId && !accessKey" class="flex flex-col gap-2 bg-neutral-800 p-8 rounded-2xl  text-center">
         <h2 class="text-xl font-normal">Create new link</h2>
