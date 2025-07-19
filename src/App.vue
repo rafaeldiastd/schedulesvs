@@ -86,12 +86,15 @@
       <div v-for="slot in timeSlots" :key="`vice - president - ${slot}`">
         <template v-if="vicePresidentSlots[slot]">
           <div class="flex gap-2">
-             <div
+            <div
               class="w-full flex items-center justify-between gap-2 text-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
               <div class="flex items-center gap-2">
                 <img :src="vicePresidentSlots[slot].avatar_image" alt="Avatar" class="w-6 h-6 rounded-full" />
-                <img v-if="vicePresidentSlots[slot].stove_lv_content" :src="vicePresidentSlots[slot].stove_lv_content" alt="Stove Content Level" class="w-6 h-6 rounded-full" />
-                <span v-else="vicePresidentSlots[slot].stove_lv" alt="Stove Level" class="w-6 h-6 rounded-full"> {{ vicePresidentSlots[slot].stove_lv }}</span>
+                <img v-if="vicePresidentSlots[slot].stove_lv_content !== null"
+                  :src="vicePresidentSlots[slot].stove_lv_content" alt="Stove Content Level"
+                  class="w-6 h-6 rounded-full" />
+                <span v-else="vicePresidentSlots[slot].stove_lv !== null" alt="Stove Level"
+                  class="w-6 h-6 rounded-full"> {{ vicePresidentSlots[slot].stove_lv }}</span>
                 <span class=""> {{ vicePresidentSlots[slot].player_name }}</span>
               </div>
               <span class="">{{ vicePresidentSlots[slot].player_id }}</span>
@@ -233,7 +236,7 @@ const getPlayerInfo = async (playerId) => {
     }
 
     if (response.data.err_code === 40001) {
-      throw new Error('Invalid player ID format.'); 
+      throw new Error('Invalid player ID format.');
     }
 
     if (response.data.data && response.data.data.nickname) {
@@ -250,7 +253,7 @@ const getPlayerInfo = async (playerId) => {
 
   } catch (err) {
     console.error(`Error fetching player info for ID ${playerId}:`, err);
-    return null; 
+    return null;
   }
 };
 
@@ -385,10 +388,17 @@ const signupPlayer = async () => {
   signupError.value = '';
   loading.value = true;
 
-  if (!signupPlayerId.value.trim()) {
+   if (!signupPlayerId.value.trim()) {
     signupError.value = 'Player ID is required.';
     loading.value = false;
     return;
+  }
+
+  const trimmedPlayerId = signupPlayerId.value.trim();
+  if (isNaN(parseFloat(trimmedPlayerId)) || !/^\d+$/.test(trimmedPlayerId)) {
+      signupError.value = 'The player ID must be a valid number.';
+      loading.value = false;
+      return;
   }
 
   if (playerHasSlot(currentSignupRole.value)) {
