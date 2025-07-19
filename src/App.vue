@@ -171,7 +171,7 @@ const successMessage = ref('');
 
 const linkId = ref('');
 const accessKey = ref('');
-const currentLinkName = ref('Carregando...');
+const currentLinkName = ref('Loading...');
 
 const timeSlots = ref([]);
 const educationSlots = ref({});
@@ -271,7 +271,7 @@ const generateTimeSlots = () => {
       const startMinute = String(m).padStart(2, '0');
       const endHour = String(h + (m === 30 ? 1 : 0)).padStart(2, '0');
       const endMinute = String((m + 30) % 60).padStart(2, '0');
-      slots.push(`${startHour}: ${startMinute} - ${endHour}: ${endMinute}`);
+      slots.push(`${startHour}:${startMinute} - ${endHour}:${endMinute}`);
     }
   }
   timeSlots.value = slots;
