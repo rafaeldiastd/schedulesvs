@@ -90,8 +90,8 @@
               class="w-full flex items-center justify-between gap-2 text-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
               <div class="flex items-center gap-2">
                 <img :src="vicePresidentSlots[slot].avatar_image" alt="Avatar" class="w-6 h-6 rounded-full" />
-                <img v-if="vicePresidentSlots[slot].stove_lv_content" :src="vicePresidentSlots[slot].stove_lv_content" alt="Stove Level" class="w-6 h-6 rounded-full" />
-                <img v-else="vicePresidentSlots[slot].stove_lv" :src="vicePresidentSlots[slot].stove_lv" alt="Stove Level" class="w-6 h-6 rounded-full" />
+                <img v-if="vicePresidentSlots[slot].stove_lv_content" :src="vicePresidentSlots[slot].stove_lv_content" alt="Stove Content Level" class="w-6 h-6 rounded-full" />
+                <span v-else="vicePresidentSlots[slot].stove_lv" alt="Stove Level" class="w-6 h-6 rounded-full"> {{ vicePresidentSlots[slot].stove_lv }}</span>
                 <span class=""> {{ vicePresidentSlots[slot].player_name }}</span>
               </div>
               <span class="">{{ vicePresidentSlots[slot].player_id }}</span>
