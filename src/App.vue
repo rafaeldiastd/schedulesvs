@@ -15,8 +15,10 @@
       <h2 v-if="linkId"> {{ currentLinkName }}</h2>
       <h2 v-if="!linkId"> {{ newLinkName }}</h2>
 
-      <span class="text-md text-neutral-300 p-6 text-center">Choose the time that will be available for each ministry. Enter your ID and sign up. Remember to also sign up through the game.      </span>
-      <span class="text-xs text-neutral-300 p-6 text-center">This project was developed by the ᴹᴬᴺᴱᴿᴼ of the state 1898 to help presidents organize the schedules of each player during the preparation of the SvS</span>
+      <span class="text-md text-neutral-300 p-6 text-center">Choose the time that will be available for each ministry.
+        Enter your ID and sign up. Remember to also sign up through the game. </span>
+      <span class="text-xs text-neutral-300 p-6 text-center">This project was developed by the ᴹᴬᴺᴱᴿᴼ of the state 1898
+        to help presidents organize the schedules of each player during the preparation of the SvS</span>
       <div v-if="!linkId && !accessKey" class="flex flex-col gap-2 bg-neutral-800 p-8 rounded-2xl  text-center">
         <h2 class="text-xl font-normal">Create new link</h2>
         <p class="text-sm text-muted-foreground">Generate a new link for players to schedule.</p>
@@ -178,7 +180,6 @@ const vicePresidentSlots = ref({});
 const showSignupModal = ref(false);
 const currentSignupRole = ref('');
 const currentSignupSlot = ref('');
-const signupPlayerName = ref('');
 const signupPlayerId = ref('');
 const signupError = ref('');
 
@@ -222,17 +223,34 @@ const getPlayerInfo = async (playerId) => {
   try {
     const signedData = { ...data, sign: generateSign(data) };
     const response = await axios.post('https://wos-giftcode-api.centurygame.com/api/player', signedData);
+
+    // Check for the specific error code indicating player ID not found
+    if (response.data.err_code === 40004) {
+      console.warn(`Player ID ${playerId} not found: ${response.data.msg}`);
+      return null; // Return null if the player ID doesn't exist
+    }
+
+    // Check for other known API errors (like 40001 for invalid ID format, etc.)
     if (response.data.err_code === 40001) {
-      throw new Error('Invalid player ID');
+      throw new Error('Invalid player ID format.'); // Or handle as needed
     }
-    return {
-      nickname: response.data.data.nickname || 'Unknown Player',
-      stove_lv_content: response.data.data.stove_lv_content || null,
-      avatar_image: response.data.data.avatar_image || null
+
+    // If successful, and data exists, return the player info
+    if (response.data.data && response.data.data.nickname) {
+      return {
+        nickname: response.data.data.nickname || 'Unknown Player',
+        stove_lv_content: response.data.data.stove_lv_content || null,
+        avatar_image: response.data.data.avatar_image || null
+      };
+    } else {
+      // This might happen if err_code is not 40004 but data is still empty/missing
+      console.warn(`API returned unexpected successful response for ID ${playerId}:`, response.data);
+      return null;
     }
+
   } catch (err) {
-    console.error(err);
-    return 'Unknown Player';
+    console.error(`Error fetching player info for ID ${playerId}:`, err);
+    return null; // Return null for any other errors (network, unhandled API errors)
   }
 };
 
@@ -382,7 +400,7 @@ const signupPlayer = async () => {
   try {
     const playerInfo = await getPlayerInfo(signupPlayerId.value);
 
-    if (!playerInfo || playerInfo.nickname === 'Unknown Player') {
+    if (!playerInfo) {
       signupError.value = 'Invalid or unknown player ID.';
       loading.value = false;
       return;
