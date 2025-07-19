@@ -52,8 +52,10 @@
     </div>
 
     <div v-if="linkId" class="md:col-span-6 col-span-12 flex flex-col gap-2 bg-neutral-900 p-8 rounded-2xl">
-      <h2 class="text-2xl font-bold text-amber-500 text-center">Minister Education</h2>
-      <p class="text-xs text-neutral-300 text-center pb-4">Training Capacity: +200 <br />Training Speed: +50%</p>
+      <div class="h-[100px]">
+        <h2 class="text-2xl font-bold text-amber-500 text-center">Minister Education</h2>
+        <p class="text-xs text-neutral-300 text-center pb-4">Training Capacity: +200 <br />Training Speed: +50%</p>
+      </div>
       <div v-for="slot in timeSlots" :key="`education - ${slot}`">
         <template v-if="educationSlots[slot]">
           <div class="flex gap-2">
@@ -61,7 +63,10 @@
               class="w-full flex items-center justify-between gap-2 text-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
               <div class="flex items-center gap-2">
                 <img :src="educationSlots[slot].avatar_image" alt="Avatar" class="w-6 h-6 rounded-full" />
-                <img :src="educationSlots[slot].stove_lv_content" alt="Stove Level" class="w-6 h-6 rounded-full" />
+                <img v-if="educationSlots[slot].stove_lv > 30"
+                  :src="educationSlots[slot].stove_lv_content" alt="Stove Level" class="w-6 h-6 rounded-full" />
+                <span v-else
+                  class="text-xs text-neutral-400">Lv. {{ educationSlots[slot].stove_lv }}</span> 
                 <span class=""> {{ educationSlots[slot].player_name }}</span>
               </div>
               <span class="">{{ educationSlots[slot].player_id }}</span>
@@ -80,9 +85,11 @@
       </div>
     </div>
     <div v-if="linkId" class="md:col-span-6 col-span-12 flex flex-col gap-2 bg-neutral-900 p-8 rounded-2xl">
-      <h2 class="text-2xl font-bold text-amber-500 text-center">Vice President</h2>
-      <p class="text-xs text-neutral-300 text-center pb-4"> Construction Speed: +10% <br /> Search Speed: +10% <br />
-        Training Speed: +10%</p>
+      <div class="h-[100px]">
+        <h2 class="text-2xl font-bold text-amber-500 text-center">Vice President</h2>
+        <p class="text-xs text-neutral-300 text-center pb-4"> Construction Speed: +10% <br /> Search Speed: +10% <br />
+          Training Speed: +10%</p>
+      </div>
       <div v-for="slot in timeSlots" :key="`vice - president - ${slot}`">
         <template v-if="vicePresidentSlots[slot]">
           <div class="flex gap-2">
@@ -90,11 +97,10 @@
               class="w-full flex items-center justify-between gap-2 text-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
               <div class="flex items-center gap-2">
                 <img :src="vicePresidentSlots[slot].avatar_image" alt="Avatar" class="w-6 h-6 rounded-full" />
-                <img v-if="vicePresidentSlots[slot].stove_lv_content !== null"
-                  :src="vicePresidentSlots[slot].stove_lv_content" alt="Stove Content Level"
-                  class="w-6 h-6 rounded-full" />
-                <span v-else="vicePresidentSlots[slot].stove_lv !== null" alt="Stove Level"
-                  class="w-6 h-6 rounded-full"> {{ vicePresidentSlots[slot].stove_lv }}</span>
+                <img v-if="vicePresidentSlots[slot].stove_lv > 30"
+                  :src="vicePresidentSlots[slot].stove_lv_content" alt="Stove Level" class="w-6 h-6 rounded-full" />
+                <span v-else
+                  class="text-xs text-neutral-400">Lv. {{ vicePresidentSlots[slot].stove_lv }}</span> 
                 <span class=""> {{ vicePresidentSlots[slot].player_name }}</span>
               </div>
               <span class="">{{ vicePresidentSlots[slot].player_id }}</span>
@@ -388,7 +394,7 @@ const signupPlayer = async () => {
   signupError.value = '';
   loading.value = true;
 
-   if (!signupPlayerId.value.trim()) {
+  if (!signupPlayerId.value.trim()) {
     signupError.value = 'Player ID is required.';
     loading.value = false;
     return;
@@ -396,9 +402,9 @@ const signupPlayer = async () => {
 
   const trimmedPlayerId = signupPlayerId.value.trim();
   if (isNaN(parseFloat(trimmedPlayerId)) || !/^\d+$/.test(trimmedPlayerId)) {
-      signupError.value = 'The player ID must be a valid number.';
-      loading.value = false;
-      return;
+    signupError.value = 'The player ID must be a valid number.';
+    loading.value = false;
+    return;
   }
 
   if (playerHasSlot(currentSignupRole.value)) {
