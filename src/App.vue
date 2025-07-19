@@ -157,7 +157,7 @@ import CryptoJS from 'crypto-js'; // You'll need this for generateSign
 // Substitua com suas variáveis de ambiente do Vercel
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
-const wosKey = import.meta.env.VITE_WOS_API_SECRET_KEY || process.env.WOS_API_SECRET_KEY || 'YOUR_SECRET_KEY_HERE'; // Load from environment or provide a default
+const wosKey = import.meta.env.VITE_WOS_API_SECRET_KEY || process.env.WOS_API_SECRET_KEY || 'YOUR_SECRET_KEY_HERE';
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -170,7 +170,7 @@ const errorMessage = ref('');
 const successMessage = ref('');
 
 const linkId = ref('');
-const accessKey = ref(''); // This will be set if the URL contains the access key for admin view
+const accessKey = ref('');
 const currentLinkName = ref('Carregando...');
 
 const timeSlots = ref([]);
@@ -183,7 +183,7 @@ const currentSignupSlot = ref('');
 const signupPlayerId = ref('');
 const signupError = ref('');
 
-const inputAccessKey = ref(''); // For President to input key
+const inputAccessKey = ref('');
 const accessKeyError = ref('');
 
 
@@ -224,18 +224,15 @@ const getPlayerInfo = async (playerId) => {
     const signedData = { ...data, sign: generateSign(data) };
     const response = await axios.post('https://wos-giftcode-api.centurygame.com/api/player', signedData);
 
-    // Check for the specific error code indicating player ID not found
     if (response.data.err_code === 40004) {
       console.warn(`Player ID ${playerId} not found: ${response.data.msg}`);
-      return null; // Return null if the player ID doesn't exist
+      return null;
     }
 
-    // Check for other known API errors (like 40001 for invalid ID format, etc.)
     if (response.data.err_code === 40001) {
-      throw new Error('Invalid player ID format.'); // Or handle as needed
+      throw new Error('Invalid player ID format.'); 
     }
 
-    // If successful, and data exists, return the player info
     if (response.data.data && response.data.data.nickname) {
       return {
         nickname: response.data.data.nickname || 'Unknown Player',
@@ -243,19 +240,18 @@ const getPlayerInfo = async (playerId) => {
         avatar_image: response.data.data.avatar_image || null
       };
     } else {
-      // This might happen if err_code is not 40004 but data is still empty/missing
       console.warn(`API returned unexpected successful response for ID ${playerId}:`, response.data);
       return null;
     }
 
   } catch (err) {
     console.error(`Error fetching player info for ID ${playerId}:`, err);
-    return null; // Return null for any other errors (network, unhandled API errors)
+    return null; 
   }
 };
 
 const playerHasSlot = (role) => {
-  const playerId = signupPlayerId.value || localStorage.getItem('player_id'); // Check if player already signed up in this session
+  const playerId = signupPlayerId.value;
   if (!playerId) return false;
 
   if (role === 'education') {
@@ -370,7 +366,7 @@ const fetchSlots = async () => {
 const openSignupModal = (role, slot) => {
   currentSignupRole.value = role;
   currentSignupSlot.value = slot;
-  signupPlayerId.value = localStorage.getItem('player_id') || '';
+  signupPlayerId.value = '';
   signupError.value = '';
   showSignupModal.value = true;
 };
@@ -431,8 +427,6 @@ const signupPlayer = async () => {
     } else {
       successMessage.value = 'Sign up successful!';
       setTimeout(() => successMessage.value = '', 3000);
-      localStorage.setItem('player_name', finalPlayerName); // Salve o nome final no localStorage
-      localStorage.setItem('player_id', signupPlayerId.value);
       closeSignupModal();
       await fetchSlots();
     }
