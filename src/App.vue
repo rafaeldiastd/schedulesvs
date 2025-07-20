@@ -123,17 +123,20 @@
 
       <div v-for="slot in timeSlots" :key="`education - ${slot}`">
         <template v-if="educationSlots[slot]">
-          <div class="flex gap-2">
-            <div
-              class="w-full flex items-center justify-between gap-2 text-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
+          <div class="flex gap-2" >
+            <div class="w-full flex flex-col items-center justify-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
+              <span class="text-xs text-neutral-400 py-1"> {{ educationSlots[slot].time_slot }} UTC </span>
+              <hr class="w-full border-neutral-600" />
+              <div class="flex items-center justify-between w-full pt-2">
               <div class="flex items-center gap-2">
-                <img :src="educationSlots[slot].avatar_image" alt="Avatar" class="w-6 h-6 rounded-full" />
+                <img :src="educationSlots[slot].avatar_image" alt="Avatar" class="w-5 h-5 rounded-full" />
                 <img v-if="educationSlots[slot].stove_lv > 35" :src="educationSlots[slot].stove_lv_content"
-                  alt="Stove Level" class="w-6 h-6 rounded-full" />
-                <span v-else class="text-xs text-neutral-400">Lv. {{ educationSlots[slot].stove_lv }}</span>
+                  alt="Stove Level" class="w-5 h-5 rounded-full" />
+                <span v-else class="text-xs text-neutral-400">Lv.{{ educationSlots[slot].stove_lv }}</span>
                 <span class=""> {{ educationSlots[slot].player_name }}</span>
               </div>
               <span class="">{{ educationSlots[slot].player_id }}</span>
+              </div>
             </div>
             <button v-if="accessKey" @click="removePlayer(educationSlots[slot].id, 'education')"
               class="border border-red-400 rounded-2xl bg-red-600 text-white p-2">
@@ -162,19 +165,22 @@
       <div v-if="linkId && !slotsRemainingCount().vice_president" class="text-red-500 text-center py-2">No slots remaining for Vice President</div>
       <div v-for="slot in timeSlots" :key="`vice - president - ${slot}`">
         <template v-if="vicePresidentSlots[slot]">
-          <div class="flex gap-2">
-            <div
-              class="w-full flex items-center justify-between gap-2 text-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
+          <div class="flex gap-2" >
+            <div class="w-full flex flex-col items-center justify-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
+              <span class="text-xs text-neutral-400 py-1"> {{ vicePresidentSlots[slot].time_slot }} UTC </span>
+              <hr class="w-full border-neutral-600" />
+              <div class="flex items-center justify-between w-full pt-2">
               <div class="flex items-center gap-2">
-                <img :src="vicePresidentSlots[slot].avatar_image" alt="Avatar" class="w-6 h-6 rounded-full" />
+                <img :src="vicePresidentSlots[slot].avatar_image" alt="Avatar" class="w-5 h-5 rounded-full" />
                 <img v-if="vicePresidentSlots[slot].stove_lv > 35" :src="vicePresidentSlots[slot].stove_lv_content"
-                  alt="Stove Level" class="w-6 h-6 rounded-full" />
-                <span v-else class="text-xs text-neutral-400">Lv. {{ vicePresidentSlots[slot].stove_lv }}</span>
+                  alt="Stove Level" class="w-5 h-5 rounded-full" />
+                <span v-else class="text-xs text-neutral-400">Lv.{{ vicePresidentSlots[slot].stove_lv }}</span>
                 <span class=""> {{ vicePresidentSlots[slot].player_name }}</span>
               </div>
               <span class="">{{ vicePresidentSlots[slot].player_id }}</span>
+              </div>
             </div>
-            <button v-if="accessKey" @click="removePlayer(vicePresidentSlots[slot].id, 'education')"
+            <button v-if="accessKey" @click="removePlayer(vicePresidentSlots[slot].id, 'vice_president')"
               class="border border-red-400 rounded-2xl bg-red-600 text-white p-2">
               <XIcon class="w-4 h-4" />
             </button>
