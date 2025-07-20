@@ -175,7 +175,6 @@
               </div>
               <span class="">{{ vicePresidentSlots[slot].player_id }}</span>
             </div>
-
             <button v-if="accessKey" @click="removePlayer(vicePresidentSlots[slot].id, 'education')"
               class="border border-red-400 rounded-2xl bg-red-600 text-white p-2">
               <XIcon class="w-4 h-4" />
