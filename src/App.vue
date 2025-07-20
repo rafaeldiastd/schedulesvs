@@ -144,8 +144,7 @@
         <template v-else>
           <button v-if="linkId" @click="openSignupModal('education', slot)" :disabled="playerHasSlot('education')"
             class=" w-full border border-neutral-700 rounded-2xl bg-neutral-800 text-white px-4 py-2">{{
-              formatStoredDate(linkEducationDate) }} / {{ slot }}
-            UTC</button>
+              formatStoredDate(linkEducationDate) }} / {{ slot }} UTC</button>
         </template>
       </div>
     </div>
