@@ -279,7 +279,7 @@ function closeSignupModal() {
 // Confirma o cadastro
 async function confirmSignup() {
     if (!modalPlayerId.value.trim()) {
-        errorMessage.value = 'Please enter a player ID';
+        errorMessage.value = 'Por favor, informe o ID do jogador.';
         setTimeout(() => (errorMessage.value = ''), 3000);
         return;
     }
@@ -292,9 +292,9 @@ async function confirmSignup() {
 }
 
 const tabs = [
-    { label: 'Education', value: 'education' },
-    { label: 'Vice President - Construction', value: 'vicePresidentConstruction' },
-    { label: 'Vice President - Research', value: 'vicePresidentResearch' },
+    { label: 'Training Troops', value: 'education' },
+    { label: 'Construction', value: 'vicePresidentConstruction' },
+    { label: 'Research', value: 'vicePresidentResearch' },
     { label: 'Config', value: 'config' }
 ];
 

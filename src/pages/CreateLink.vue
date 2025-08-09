@@ -12,17 +12,17 @@
                 Remember to save your access key – it's essential for managing player sign-ups later!</p>
             <div class="py-4 grid gap-4 grid-cols-3">
                 <div class="flex flex-col gap-1 col-span-1">
-                    <label class="text-xs" for="educationDay">Minister Education - Training Troop</label>
+                    <label class="text-xs" for="educationDay">Training Troop</label>
                     <input id="educationDay" type="date" v-model="educationDay"
                         class="rounded-xl bg-wos-500 px-4 py-2 w-full text-wos-900 text-sm" />
                 </div>
                 <div class="flex flex-col gap-1 col-span-1">
-                    <label class="text-xs" for="vicePresidentDayConstruction">Vice President - Construction</label>
+                    <label class="text-xs" for="vicePresidentDayConstruction">Construction</label>
                     <input id="vicePresidentDayConstruction" type="date" v-model="vicePresidentDayConstruction"
                         class="rounded-xl bg-wos-500 px-4 py-2 w-full text-wos-900 text-sm" />
                 </div>
                 <div class="flex flex-col gap-1 col-span-1">
-                    <label class="text-xs" for="vicePresidentDayResearch">Vice President - Research</label>
+                    <label class="text-xs" for="vicePresidentDayResearch">Research</label>
                     <input id="vicePresidentDayResearch" type="date" v-model="vicePresidentDayResearch"
                         class="rounded-xl bg-wos-500 px-4 py-2 w-full text-wos-900 text-sm" />
                 </div>
