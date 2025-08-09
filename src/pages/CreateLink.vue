@@ -111,7 +111,6 @@ function generateUniqueCode(length = 6) {
 
 const createLink = async () => {
     errorMessage.value = '';
-    successMessage.value = '';
     loading.value = true;
 
     const customLinkId = generateUniqueCode();
@@ -150,8 +149,8 @@ const createLink = async () => {
         }
         newAccessKey.value = data.access_key;
         generatedLink.value = `${window.location}link/${data.id}`;
-        successMessage.value = 'Link created successfully!';
-        setTimeout(() => successMessage.value = '', 3000);
+        errorMessage.value = 'Link created successfully!';
+        setTimeout(() => errorMessage.value = '', 3000);
 
     } catch (error) {
         console.error('Error creating link:', error);

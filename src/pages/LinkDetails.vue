@@ -279,7 +279,7 @@ function closeSignupModal() {
 // Confirma o cadastro
 async function confirmSignup() {
     if (!modalPlayerId.value.trim()) {
-        errorMessage.value = 'Por favor, informe o ID do jogador.';
+        errorMessage.value = 'Please enter a player ID';
         setTimeout(() => (errorMessage.value = ''), 3000);
         return;
     }
