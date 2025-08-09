@@ -5,12 +5,17 @@
     <div class="flex flex-col items-center gap-4 p-3" v-if="!generatedLink">
         <h1 class="font-normal">{{ name ? name : 'WOS Scheduler' }}</h1>
         <div class="rounded-3xl bg-wos-800 px-8 py-8 w-full flex flex-col gap-4">
-            <p class="text-wos-700 font-wos text-xs text-center">Welcome, President! To create a new scheduling link,
-                simply enter a unique name for it. Then, select the specific month and day for both the Minister of
-                Education and the Vice President slots. Click 'Create Link' to generate your custom URL and a secure
-                access key.
-                Remember to save your access key – it's essential for managing player sign-ups later!</p>
+            <p class="text-wos-700 font-wos text-xl text-center">Welcome, President! </p>
+            <p class="text-wos-700 font-wos text-xs text-center">To create a new scheduling link,
+                simply enter a unique name for it. Then, select the specific day for the Minister of
+                Education and the Vice President buffs. Click 'Create Link' to generate your custom URL and a secure
+                access key. Remember to save your access key – it's essential for managing player sign-ups later!</p>
             <div class="py-4 grid gap-4 grid-cols-3">
+                <div class="flex flex-col gap-1 col-span-3">
+                    <label class="text-xs" for="linkTitle">Title for the link</label>
+                    <input id="linkTitle" type="text" v-model="name"
+                        class="rounded-xl bg-wos-500 px-4 py-2 w-full text-wos-900 text-sm" maxlength="20" />
+                </div>
                 <div class="flex flex-col gap-1 col-span-1">
                     <label class="text-xs" for="educationDay">Training Troop</label>
                     <input id="educationDay" type="date" v-model="educationDay"
@@ -26,11 +31,7 @@
                     <input id="vicePresidentDayResearch" type="date" v-model="vicePresidentDayResearch"
                         class="rounded-xl bg-wos-500 px-4 py-2 w-full text-wos-900 text-sm" />
                 </div>
-                <div class="flex flex-col gap-1 col-span-3">
-                    <label class="text-xs" for="linkTitle">Title for the link</label>
-                    <input id="linkTitle" type="text" v-model="name"
-                        class="rounded-xl bg-wos-500 px-4 py-2 w-full text-wos-900 text-sm" maxlength="20" />
-                </div>
+
             </div>
 
             <div class="flex justify-center">
@@ -100,13 +101,13 @@ const errorMessage = ref('');
 const successMessage = ref('');
 
 function generateUniqueCode(length = 6) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let code = '';
-  for (let i = 0; i < length; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  // adiciona 2 caracteres do timestamp para reduzir colisões
-  return code + Date.now().toString(36).slice(-2);
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let code = '';
+    for (let i = 0; i < length; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    // adiciona 2 caracteres do timestamp para reduzir colisões
+    return code + Date.now().toString(36).slice(-2);
 }
 
 const createLink = async () => {
