@@ -2,27 +2,31 @@
     <div v-if="errorMessage"
         class="absolute top-1/2 min-w-full bg-wos-950 border-wos-800 border-b-2 border-t-2 text-xs text-wos-50 text-center p-2 animate-wiggle z-50">
         {{ errorMessage }}</div>
-    <div class="flex flex-col items-center gap-4" v-if="!generatedLink">
+    <div class="flex flex-col items-center gap-4 p-3" v-if="!generatedLink">
         <h1 class="font-normal">{{ name ? name : 'WOS Scheduler' }}</h1>
         <div class="rounded-3xl bg-wos-800 px-8 py-8 w-full flex flex-col gap-4">
             <p class="text-wos-700 font-wos text-xs text-center">Welcome, President! To create a new scheduling link,
                 simply enter a unique name for it. Then, select the specific month and day for both the Minister of
-                Education
-                and the Vice President slots. Click 'Create Link' to generate your custom URL and a secure access key.
-                Remember
-                to save your access key – it's essential for managing player sign-ups later!</p>
-            <div class="py-4 flex flex-col gap-4">
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs" for="educationDay">Choose day of Minister Education</label>
+                Education and the Vice President slots. Click 'Create Link' to generate your custom URL and a secure
+                access key.
+                Remember to save your access key – it's essential for managing player sign-ups later!</p>
+            <div class="py-4 grid gap-4 grid-cols-3">
+                <div class="flex flex-col gap-1 col-span-1">
+                    <label class="text-xs" for="educationDay">Minister Education - Training Troop</label>
                     <input id="educationDay" type="date" v-model="educationDay"
                         class="rounded-xl bg-wos-500 px-4 py-2 w-full text-wos-900 text-sm" />
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs" for="vicePresidentDay">Choose day of Vice President</label>
-                    <input id="vicePresidentDay" type="date" v-model="vicePresidentDay"
+                <div class="flex flex-col gap-1 col-span-1">
+                    <label class="text-xs" for="vicePresidentDayConstruction">Vice President - Construction</label>
+                    <input id="vicePresidentDayConstruction" type="date" v-model="vicePresidentDayConstruction"
                         class="rounded-xl bg-wos-500 px-4 py-2 w-full text-wos-900 text-sm" />
                 </div>
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-1 col-span-1">
+                    <label class="text-xs" for="vicePresidentDayResearch">Vice President - Research</label>
+                    <input id="vicePresidentDayResearch" type="date" v-model="vicePresidentDayResearch"
+                        class="rounded-xl bg-wos-500 px-4 py-2 w-full text-wos-900 text-sm" />
+                </div>
+                <div class="flex flex-col gap-1 col-span-3">
                     <label class="text-xs" for="linkTitle">Title for the link</label>
                     <input id="linkTitle" type="text" v-model="name"
                         class="rounded-xl bg-wos-500 px-4 py-2 w-full text-wos-900 text-sm" maxlength="20" />
@@ -43,7 +47,7 @@
         </div>
 
     </div>
-    <div class="flex flex-col text-center gap-4" v-if="generatedLink">
+    <div class="flex flex-col text-center gap-4  p-3" v-if="generatedLink">
         <h1 class="font-normal">{{ name ? name : 'WOS Scheduler' }}</h1>
         <div class="rounded-3xl bg-wos-800 px-8 py-8 w-full flex flex-col justify-center items-center gap-4">
             <p class="text-wos-700 font-wos text-xs text-center">Remember to save your access key – it's essential for
@@ -79,16 +83,15 @@
 <script setup>
 import { ref } from 'vue';
 import { createClient } from '@supabase/supabase-js';
-import { v4 as uuidv4 } from 'uuid';
-
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_API_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const name = ref('');
 const educationDay = ref('');
-const vicePresidentDay = ref('');
+const vicePresidentDayResearch = ref('');
+const vicePresidentDayConstruction = ref('');
 const loading = ref(false);
 const generatedLink = ref('');
 const newAccessKey = ref('');
@@ -96,17 +99,27 @@ const newAccessKey = ref('');
 const errorMessage = ref('');
 const successMessage = ref('');
 
+function generateUniqueCode(length = 6) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  // adiciona 2 caracteres do timestamp para reduzir colisões
+  return code + Date.now().toString(36).slice(-2);
+}
+
 const createLink = async () => {
     errorMessage.value = '';
     successMessage.value = '';
     loading.value = true;
 
-    const customLinkId = uuidv4();
-    const generatedAccessKey = uuidv4();
+    const customLinkId = generateUniqueCode();
+    const generatedAccessKey = generateUniqueCode();
 
     // Adicionar validação para as novas datas
-    if (!educationDay.value || !vicePresidentDay.value) {
-        errorMessage.value = 'Please select the day and month for both ministries.';
+    if (!educationDay.value || !vicePresidentDayResearch.value || !vicePresidentDayConstruction.value) {
+        errorMessage.value = 'Please select the day and month for all ministries.';
         setTimeout(() => errorMessage.value = '', 3000);
         loading.value = false;
         return;
@@ -120,7 +133,8 @@ const createLink = async () => {
                 name: name.value,
                 access_key: generatedAccessKey,
                 education_date: educationDay.value,
-                vice_president_date: vicePresidentDay.value
+                vice_president_date_research: vicePresidentDayResearch.value,
+                vice_president_date_construction: vicePresidentDayConstruction.value
             })
             .select()
             .single();
@@ -150,8 +164,8 @@ const createLink = async () => {
 
 const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-        successMessage.value = 'Copied to clipboard!';
-        setTimeout(() => successMessage.value = '', 3000);
+        errorMessage.value = 'Copied to clipboard!';
+        setTimeout(() => errorMessage.value = '', 3000);
     }).catch(err => {
         errorMessage.value = 'Failed to copy.';
         setTimeout(() => errorMessage.value = '', 3000);

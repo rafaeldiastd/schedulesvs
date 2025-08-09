@@ -28,7 +28,7 @@
         </div>
         <div class="flex gap-2 items-center justify-center -mb-5">
             <button v-for="tab in tabs" :key="tab.value" @click="currentMenu = tab.value"
-                class="rounded-t-xl text-xs p-4 w-fit hover:bg-wos-500 hover:text-wos-800 hover:cursor-pointer transition-colors duration-200"
+                class="rounded-t-xl text-xs px-1 py-3 w-fit hover:bg-wos-500 hover:text-wos-800 hover:cursor-pointer transition-colors duration-200"
                 :class="currentMenu === tab.value
                     ? 'bg-wos-50 text-wos-800'
                     : 'bg-wos-400 text-wos-500'">
@@ -38,7 +38,8 @@
         <div v-if="currentMenu === 'education'"
             class="rounded-3xl bg-wos-800 px-8 py-8 w-full flex flex-col gap-4 border-t-4 border-wos-50">
             <div class="flex flex-col gap-4">
-                <p class="text-wos-700 font-wos text-xs text-center">
+                <p class="text-wos-700 font-wos text-xs text-center flex flex-col items-center">
+                    <p v-if="!loading" class="bg-wos-900 rounded px-3 py-2 w-fit m-2">Day: {{ linkData.education_date }}</p>
                     Choice your best schedule and add your ID. For change, talk your President or Responsabily
                 </p>
                 <div class="bg-wos-900 rounded-xl py-4">
@@ -60,8 +61,7 @@
                                 <img v-if="educationSlots[time]" :src="educationSlots[time].avatar_image"
                                     class="rounded-xl w-[50px] h-[50px] flex items-center justify-center bg-wos-400">
                                 </img>
-                                <div v-else @click="openSignupModal('education', time)"
-                                    class=" rounded-xl w-[50px] h-[50px] flex items-center justify-center bg-wos-400
+                                <div v-else @click="openSignupModal('education', time)" class=" rounded-xl w-[50px] h-[50px] flex items-center justify-center bg-wos-400
                                     text-lime-400 text-2xl font-black">
                                     +
                                 </div>
@@ -82,10 +82,64 @@
                 </div>
             </div>
         </div>
-        <div v-else-if="currentMenu === 'vicePresident'"
+        <div v-else-if="currentMenu === 'vicePresidentResearch'"
             class="rounded-3xl bg-wos-800 px-8 py-8 w-full flex flex-col gap-4 border-t-4 border-wos-50">
             <div class="flex flex-col gap-4 ">
-                <p class="text-wos-700 font-wos text-xs text-center">
+                <p class="text-wos-700 font-wos text-xs text-center flex flex-col items-center">
+                    <p v-if="!loading" class="bg-wos-900 rounded px-3 py-2 w-fit m-2">Day: {{ linkData.vice_president_date_research }}</p>
+                    Choice your best schedule and add your ID. For change, talk your President or Responsabily
+                </p>
+                <div class="bg-wos-900 rounded-xl py-4">
+                    <p class="text-wos-700 font-wos text-xs text-center">
+                        Search Speed: +10%<br>
+                        Construction Speed: +10%<br>
+                        Training Speed: +10%<br>
+                    </p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <!-- Vice President -->
+                    <div v-for="time in timeSlots" :key="time" class="relative">
+                        <div v-if="vicePresidentResearchSlots[time] && accessGranted"
+                            @click="removePlayer(vicePresidentResearchSlots[time].id, 'vicePresidentResearch')"
+                            class="rounded-full w-5 h-5 bg-red-700 justify-center flex items-center text-white absolute top-[-5px] right-0 hover:cursor-pointer">
+                            <span class="mt-[-5px]">-</span>
+                        </div>
+                        <div class="rounded-xl py-2 px-4 flex gap-2 min-h-[68px] items-center justify-between"
+                            :class="vicePresidentResearchSlots[time] ? 'bg-wos-50 text-wos-900' : 'bg-wos-600 text-wos-300'">
+
+                            <div class="flex gap-3 items-center">
+                                <img v-if="vicePresidentResearchSlots[time]" :src="vicePresidentResearchSlots[time].avatar_image"
+                                    class="rounded-xl w-[50px] h-[50px] flex items-center justify-center bg-wos-400">
+                                </img>
+                                <div v-else @click="openSignupModal('vicePresidentResearch', time)"
+                                    class="rounded-xl w-[50px] h-[50px] flex items-center justify-center bg-wos-400 text-lime-400 text-2xl font-black">
+                                    +
+                                </div>
+
+                                <div class="flex flex-col gap-1">
+                                    <p class=" font-wos text-xs">
+                                        {{ vicePresidentResearchSlots[time] ? vicePresidentResearchSlots[time].player_name :
+                                            'Slot_Empty' }}
+                                    </p>
+                                    <p class="font-wos text-xs">
+                                        {{ time }} UTC
+                                    </p>
+                                </div>
+                            </div>
+                            <div v-if="vicePresidentResearchSlots[time]">
+                                <span class="text-wos-900 font-wos text-xs">{{
+                                    vicePresidentResearchSlots[time].player_id }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-else-if="currentMenu === 'vicePresidentConstruction'"
+            class="rounded-3xl bg-wos-800 px-8 py-8 w-full flex flex-col gap-4 border-t-4 border-wos-50">
+            <div class="flex flex-col gap-4 ">
+                <p class="text-wos-700 font-wos text-xs text-center flex flex-col items-center">
+                    <p v-if="!loading" class="bg-wos-900 rounded px-3 py-2 w-fit m-2">Day: {{ linkData.vice_president_date_construction }}</p>
                     Choice your best schedule and add your ID. For change, talk your President or Responsabily
                 </p>
                 <div class="bg-wos-900 rounded-xl py-4">
@@ -98,26 +152,26 @@
                 <div class="flex flex-col gap-2">
                     <!-- Vice President -->
                     <div v-for="time in timeSlots" :key="time" class="relative">
-                        <div v-if="vicePresidentSlots[time] && accessGranted"
-                            @click="removePlayer(vicePresidentSlots[time].id, 'vicePresident')"
+                        <div v-if="vicePresidentConstructionSlots[time] && accessGranted"
+                            @click="removePlayer(vicePresidentConstructionSlots[time].id, 'vicePresidentConstruction')"
                             class="rounded-full w-5 h-5 bg-red-700 justify-center flex items-center text-white absolute top-[-5px] right-0 hover:cursor-pointer">
                             <span class="mt-[-5px]">-</span>
                         </div>
                         <div class="rounded-xl py-2 px-4 flex gap-2 min-h-[68px] items-center justify-between"
-                            :class="vicePresidentSlots[time] ? 'bg-wos-50 text-wos-900' : 'bg-wos-600 text-wos-300'">
+                            :class="vicePresidentConstructionSlots[time] ? 'bg-wos-50 text-wos-900' : 'bg-wos-600 text-wos-300'">
 
                             <div class="flex gap-3 items-center">
-                                <img v-if="vicePresidentSlots[time]" :src="vicePresidentSlots[time].avatar_image"
+                                <img v-if="vicePresidentConstructionSlots[time]" :src="vicePresidentConstructionSlots[time].avatar_image"
                                     class="rounded-xl w-[50px] h-[50px] flex items-center justify-center bg-wos-400">
                                 </img>
-                                <div v-else @click="openSignupModal('vicePresident', time)"
+                                <div v-else @click="openSignupModal('vicePresidentConstruction', time)"
                                     class="rounded-xl w-[50px] h-[50px] flex items-center justify-center bg-wos-400 text-lime-400 text-2xl font-black">
                                     +
                                 </div>
 
                                 <div class="flex flex-col gap-1">
                                     <p class=" font-wos text-xs">
-                                        {{ vicePresidentSlots[time] ? vicePresidentSlots[time].player_name :
+                                        {{ vicePresidentConstructionSlots[time] ? vicePresidentConstructionSlots[time].player_name :
                                             'Slot_Empty' }}
                                     </p>
                                     <p class="font-wos text-xs">
@@ -125,9 +179,9 @@
                                     </p>
                                 </div>
                             </div>
-                            <div v-if="vicePresidentSlots[time]">
+                            <div v-if="vicePresidentConstructionSlots[time]">
                                 <span class="text-wos-900 font-wos text-xs">{{
-                                    vicePresidentSlots[time].player_id }}</span>
+                                    vicePresidentConstructionSlots[time].player_id }}</span>
                             </div>
                         </div>
                     </div>
@@ -180,7 +234,7 @@ import CryptoJS from 'crypto-js';
 
 const route = useRoute();
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_API_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 const wosKey = import.meta.env.VITE_WOS_API_SECRET_KEY || process.env.WOS_API_SECRET_KEY || 'YOUR_SECRET_KEY_HERE';
 
@@ -194,10 +248,11 @@ const modalPlayerId = ref('');
 const modalRole = ref('');
 const modalTime = ref('');
 
-const currentMenu = ref('vicePresident'); // Default to 'vicePresident'
+const currentMenu = ref('education'); // Default to 'vicePresident'
 
 const educationSlots = ref({});
-const vicePresidentSlots = ref({});
+const vicePresidentConstructionSlots = ref({});
+const vicePresidentResearchSlots = ref({});
 const timeSlots = ref([]);
 
 const accessKey = ref('');
@@ -238,7 +293,8 @@ async function confirmSignup() {
 
 const tabs = [
     { label: 'Education', value: 'education' },
-    { label: 'Vice President', value: 'vicePresident' },
+    { label: 'Vice President - Construction', value: 'vicePresidentConstruction' },
+    { label: 'Vice President - Research', value: 'vicePresidentResearch' },
     { label: 'Config', value: 'config' }
 ];
 
@@ -250,9 +306,9 @@ const generateSign = (data) => {
 
 async function fetchLinkData() {
     loading.value = true;
+        const id = route.params.id;
 
     try {
-        const id = route.params.id;
         const { data, error } = await supabase
             .from('links')
             .select('*')
@@ -260,8 +316,8 @@ async function fetchLinkData() {
             .single();
 
         if (error) throw error;
-
         linkData.value = data;
+
     } catch (err) {
         console.error('Error fetching link data:', err);
         errorMessage.value = 'Failed to load link information.';
@@ -284,14 +340,17 @@ async function fetchSlots() {
 
 
         educationSlots.value = {};
-        vicePresidentSlots.value = {};
+        vicePresidentConstructionSlots.value = {};
+        vicePresidentResearchSlots.value = {};
 
 
         data.forEach(slot => {
             if (slot.role === 'education') {
                 educationSlots.value[slot.time_slot] = slot;
-            } else if (slot.role === 'vicePresident') {
-                vicePresidentSlots.value[slot.time_slot] = slot;
+            } else if (slot.role === 'vicePresidentConstruction') {
+                vicePresidentConstructionSlots.value[slot.time_slot] = slot;
+            } else if (slot.role === 'vicePresidentResearch') {
+                vicePresidentResearchSlots.value[slot.time_slot] = slot;
             }
         });
 
