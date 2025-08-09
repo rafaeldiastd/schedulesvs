@@ -1,250 +1,11 @@
 <template>
-
-  <div class="grid grid-cols-12 gap-4">
-    <p v-if="successMessage"
-      class="text-green-300 text-center mt-4 fixed top-4 left-4 bg-neutral-800 rounded-2xl border border-neutral-500 px-4 py-2">
-      {{ successMessage }}</p>
-    <p v-if="errorMessage"
-      class="text-red-300 text-center mt-4 fixed top-4 left-4 bg-neutral-800 rounded-2xl border border-neutral-500 px-4 py-2">
-      {{ errorMessage }}</p>
-
-    <div class="col-span-12 flex flex-col items-center gap-2">
-      <h1 class="text-3xl font-bold text-neutral-200">
-        WOS Scheduler
-      </h1>
-      <h2 v-if="linkId"> {{ currentLinkName }}</h2>
-      <h2 v-if="!linkId"> {{ newLinkName }}</h2>
-
-      <span class="text-xs text-neutral-300 text-center max-w-[720px] p-4">Welcome, President! To create a new
-        scheduling
-        link, simply enter a unique name for it. Then, select the specific month and day for both the Minister of
-        Education and the Vice President slots. Click 'Create Link' to generate your custom URL and a secure access key.
-        Remember to save your access key – it's essential for managing player sign-ups later!</span>
-
-      <div v-if="!linkId && !accessKey" class="flex flex-col bg-neutral-800 p-8 rounded-2xl  text-center">
-        <h2 class="text-xl font-normal">Create new link</h2>
-        <p class="text-sm text-muted-foreground">Generate a new link for players to schedule.</p>
-        <div class="grid grid-cols-2 gap-2 items-center justify-center">
-
-          <div class="md:col-span-1 col-span-2 flex-col gap-2 md:p-4">
-            <h2 class="text-sm py-2">Day of Minister Education</h2>
-            <div class="flex gap-2">
-
-              <select v-model="educationDay"
-                class="border rounded-2xl bg-neutral-700 border-neutral-600 text-white px-3 py-2 flex-1">
-                <option value="">Day</option>
-                <option v-for="day in 31" :key="day" :value="day">{{ day }}</option>
-              </select>
-              <select v-model="educationMonth"
-                class="border rounded-2xl bg-neutral-700 border-neutral-600 text-white px-3 py-2 flex-1">
-                <option value="">Month</option>
-                <option value="January">January</option>
-                <option value="February">February</option>
-                <option value="March">March</option>
-                <option value="April">April</option>
-                <option value="May">May</option>
-                <option value="June">June</option>
-                <option value="July">July</option>
-                <option value="August">August</option>
-                <option value="September">September</option>
-                <option value="October">October</option>
-                <option value="November">November</option>
-                <option value="December">December</option>
-              </select>
-            </div>
-          </div>
-          <div class="md:col-span-1 col-span-2 flex-col gap-2 md:p-4">
-            <h2 class="text-sm py-2">Day of Vice President</h2>
-            <div class="flex gap-2">
-              <select v-model="vicePresidentDay"
-                class="border rounded-2xl bg-neutral-700 border-neutral-600 text-white px-3 py-2 flex-1">
-                <option value="">Day</option>
-                <option v-for="day in 31" :key="day" :value="day">{{ day }}</option>
-              </select>
-              <select v-model="vicePresidentMonth"
-                class="border rounded-2xl bg-neutral-700 border-neutral-600 text-white px-3 py-2 flex-1">
-                <option value="">Month</option>
-                <option value="January">January</option>
-                <option value="February">February</option>
-                <option value="March">March</option>
-                <option value="April">April</option>
-                <option value="May">May</option>
-                <option value="June">June</option>
-                <option value="July">July</option>
-                <option value="August">August</option>
-                <option value="September">September</option>
-                <option value="October">October</option>
-                <option value="November">November</option>
-                <option value="December">December</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-span-2 flex gap-2">
-            <input id="linkName" v-model="newLinkName" type="text" placeholder="Name for the link"
-              class="border rounded-2xl bg-neutral-800 border-neutral-600  text-white px-4 py-2 flex-1" />
-
-            <button @click="createLink" :disabled="loading"
-              class="border border-blue-500 rounded-2xl bg-blue-600 text-white px-4 py-2 ">
-              <template v-if="loading">
-                Creating...
-              </template>
-              <template v-else>
-                Create link
-              </template>
-            </button>
-          </div>
-
-        </div>
-
-      </div>
-
-      <div v-if="generatedLink" class="flex flex-col gap-2 mt-4">
-        <div class="p-4 flex flex-col gap-2 items-center">
-          <a :href="generatedLink" class="text-green-300">{{ generatedLink }}</a>
-          <button @click="copyToClipboard(generatedAccessKey)" class="rounded-2xl bg-neutral-800 text-white px-8 py-1">
-            Key: {{ generatedAccessKey || 'N/A' }}
-          </button>
-          <span class="text-xs text-neutral-400">Keep this key safe. It is required to remove players.</span>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="linkId" class="md:col-span-6 col-span-12 flex flex-col gap-2 bg-neutral-900 p-8 rounded-2xl">
-      <div class="h-[150px]">
-        <h2 class="text-2xl font-bold text-amber-500 text-center">Minister Education</h2>
-        <p class="text-center py-2">{{ formatStoredDate(linkEducationDate) }}</p>
-        <p class="text-xs text-neutral-300 text-center pb-4">Training Capacity: +200 <br />Training Speed: +50%</p>
-      </div>
-
-      <div v-if="slotsRemainingCount().education" class="text-green-500 text-center py-2"> {{
-        slotsRemainingCount().education }} slots remaining
-      </div>
-      <div v-if="linkId && !slotsRemainingCount().education" class="text-red-500 text-center py-2">No slots remaining for Minister Education</div>
-
-      <div v-for="slot in timeSlots" :key="`education - ${slot}`">
-        <template v-if="educationSlots[slot]">
-          <div class="flex gap-2" >
-            <div class="w-full flex flex-col items-center justify-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
-              <span class="text-xs text-neutral-400 py-1"> {{ educationSlots[slot].time_slot }} UTC </span>
-              <hr class="w-full border-neutral-600" />
-              <div class="flex items-center justify-between w-full pt-2">
-              <div class="flex items-center gap-2">
-                <img :src="educationSlots[slot].avatar_image" alt="Avatar" class="w-5 h-5 rounded-full" />
-                <img v-if="educationSlots[slot].stove_lv > 35" :src="educationSlots[slot].stove_lv_content"
-                  alt="Stove Level" class="w-5 h-5 rounded-full" />
-                <span v-else class="text-xs text-neutral-400">Lv.{{ educationSlots[slot].stove_lv }}</span>
-                <span class=""> {{ educationSlots[slot].player_name }}</span>
-              </div>
-              <span class="">{{ educationSlots[slot].player_id }}</span>
-              </div>
-            </div>
-            <button v-if="accessKey" @click="removePlayer(educationSlots[slot].id, 'education')"
-              class="border border-red-400 rounded-2xl bg-red-600 text-white p-2">
-              <XIcon class="w-4 h-4" />
-            </button>
-          </div>
-        </template>
-        <template v-else>
-          <button v-if="linkId" @click="openSignupModal('education', slot)" :disabled="playerHasSlot('education')"
-            class=" w-full border border-neutral-700 rounded-2xl bg-neutral-800 text-white px-4 py-2">{{
-              formatStoredDate(linkEducationDate) }} / {{ slot }} UTC</button>
-        </template>
-      </div>
-    </div>
-    <div v-if="linkId" class="md:col-span-6 col-span-12 flex flex-col gap-2 bg-neutral-900 p-8 rounded-2xl">
-      <div class="h-[150px]">
-        <h2 class="text-2xl font-bold text-amber-500 text-center">Vice President</h2>
-        <p class="text-center py-2">{{ formatStoredDate(linkVicePresidentDate) }}</p>
-        <p class="text-xs text-neutral-300 text-center pb-4"> Construction Speed: +10% <br /> Search Speed: +10% <br />
-          Training Speed: +10%</p>
-      </div>
-
-      <div v-if="slotsRemainingCount().vice_president" class="text-green-500 text-center py-2"> {{
-        slotsRemainingCount().vice_president }} slots remaining
-      </div>
-      <div v-if="linkId && !slotsRemainingCount().vice_president" class="text-red-500 text-center py-2">No slots remaining for Vice President</div>
-      <div v-for="slot in timeSlots" :key="`vice - president - ${slot}`">
-        <template v-if="vicePresidentSlots[slot]">
-          <div class="flex gap-2" >
-            <div class="w-full flex flex-col items-center justify-center border border-neutral-700 rounded-2xl bg-neutral-800 text-neutral-500 px-4 py-2">
-              <span class="text-xs text-neutral-400 py-1"> {{ vicePresidentSlots[slot].time_slot }} UTC </span>
-              <hr class="w-full border-neutral-600" />
-              <div class="flex items-center justify-between w-full pt-2">
-              <div class="flex items-center gap-2">
-                <img :src="vicePresidentSlots[slot].avatar_image" alt="Avatar" class="w-5 h-5 rounded-full" />
-                <img v-if="vicePresidentSlots[slot].stove_lv > 35" :src="vicePresidentSlots[slot].stove_lv_content"
-                  alt="Stove Level" class="w-5 h-5 rounded-full" />
-                <span v-else class="text-xs text-neutral-400">Lv.{{ vicePresidentSlots[slot].stove_lv }}</span>
-                <span class=""> {{ vicePresidentSlots[slot].player_name }}</span>
-              </div>
-              <span class="">{{ vicePresidentSlots[slot].player_id }}</span>
-              </div>
-            </div>
-            <button v-if="accessKey" @click="removePlayer(vicePresidentSlots[slot].id, 'vice_president')"
-              class="border border-red-400 rounded-2xl bg-red-600 text-white p-2">
-              <XIcon class="w-4 h-4" />
-            </button>
-          </div>
-        </template>
-        <template v-else>
-          <button v-if="linkId" @click="openSignupModal('vice_president', slot)"
-            :disabled="playerHasSlot('vice_president')"
-            class=" w-full border border-neutral-700 rounded-2xl bg-neutral-800 text-white px-4 py-2">{{
-              formatStoredDate(linkVicePresidentDate) }} /
-            {{ slot }} UTC
-          </button>
-        </template>
-      </div>
-    </div>
-    <div v-if="linkId" class="flex col-span-full gap-2 items-center py-8 border-t border-neutral-700">
-      <input v-model="inputAccessKey" type="password" placeholder="President Key"
-        class="border rounded-2xl bg-neutral-800 border-neutral-600  text-white px-4 py-2" />
-
-      <button @click="verifyAccessKey" class="border border-blue-500 rounded-2xl bg-blue-600 text-white px-4 py-2">
-        Check Access Key
-      </button>
-      <p v-if="accessKeyError" class="text-red-500 text-sm mt-2">{{ accessKeyError }}</p>
-    </div>
-
-    <div v-if="showSignupModal" class="fixed top-auto left-auto bg-neutral-800 p-6 z-50 rounded-2xl">
-      <h2 class="text-xl font-normal">Sign up for {{ currentSignupRole === 'education' ? 'Minister Education' :
-        'Vice President' }}</h2>
-      <p class="text-sm text-muted-foreground">Selected time: {{ currentSignupSlot }} UTC </p>
-      <div class="grid gap-4 py-4">
-        <div class="flex flex-col gap-1">
-          <input id="playerId" v-model="signupPlayerId" type="text" placeholder="Player ID"
-            class="border rounded-2xl bg-neutral-800 border-neutral-600  text-white px-4 py-2" />
-        </div>
-        <div class="flex items-center justify-between gap-2 mt-4">
-          <button @click="closeSignupModal" class="border border-neutral-500 rounded-2xl  text-white px-4 py-2">
-            Cancel
-          </button>
-          <button @click="signupPlayer" :disabled="loading"
-            class="border border-blue-500 rounded-2xl bg-blue-600 text-white px-4 py-2">
-            <template v-if="loading">
-              Loading...
-            </template>
-            <template v-else>
-              Sign up
-            </template>
-          </button>
-        </div>
-        <p v-if="signupError" class="text-red-500 text-sm">{{ signupError }}</p>
-      </div>
-    </div>
-
-    <span class="col-span-12 text-xs text-neutral-300 p-2 text-center">This project was developed by the ᴹᴬᴺᴱᴿᴼ of the
-      state
-      1898
-      to help presidents organize the schedules of each player during the preparation of the SvS</span>
-  </div>
+  <router-view />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
-import { XIcon } from 'lucide-vue-next';
 import axios from 'axios'; // Import Axios
 import CryptoJS from 'crypto-js'; // You'll need this for generateSign
 
@@ -273,9 +34,7 @@ const educationSlots = ref({});
 const vicePresidentSlots = ref({});
 
 const educationDay = ref('');
-const educationMonth = ref('');
 const vicePresidentDay = ref('');
-const vicePresidentMonth = ref('');
 
 const showSignupModal = ref(false);
 const currentSignupRole = ref('');
@@ -419,7 +178,10 @@ const createLink = async () => {
     .trim()
     .replace(/\s+/g, '-'); // Replace spaces with hyphens
 
-  const nameSegment = sanitizedName.substring(0, 15).replace(/^-+|-+$/g, ''); // Take first 15 chars, remove leading/trailing hyphens
+  const nameSegment = sanitizedName
+    .substring(0, 15)
+    .replace(/^-+|-+$/g, '') // remove hífens no início/fim
+    .replace(/--+/g, '-');  // evita hífens duplos no meio
 
   // Generate 4 random alphanumeric characters
   const randomChars = Math.random().toString(36).substring(2, 6); // Gets 4 random alphanumeric chars
@@ -430,7 +192,7 @@ const createLink = async () => {
   const newAccessKey = uuidv4(); // Access key can remain a UUID for strong uniqueness
 
   // Adicionar validação para as novas datas
-  if (!educationDay.value || !educationMonth.value || !vicePresidentDay.value || !vicePresidentMonth.value) {
+  if (!educationDay.value || !vicePresidentDay.value) {
     errorMessage.value = 'Please select the day and month for both ministries.';
     loading.value = false;
     return;
@@ -444,8 +206,8 @@ const createLink = async () => {
         id: customLinkId, // Use the new custom ID here
         name: newLinkName.value,
         access_key: newAccessKey,// Novos campos de data sendo inseridos
-        education_date: `${educationMonth.value}-${educationDay.value}`,
-        vice_president_date: `${vicePresidentMonth.value}-${vicePresidentDay.value}`
+        education_date: educationDay.value,
+        vice_president_date: vicePresidentDay.value
       })
       .select()
       .single();
@@ -499,24 +261,6 @@ const fetchLinkDetails = async () => {
   } finally {
     loading.value = false;
   }
-};
-
-const formatStoredDate = (dateString) => {
-  if (!dateString) return '';
-  // dateString will be in the format "MonthName-DayNumber" (e.g., "July-20")
-  const [monthName, day] = dateString.split('-');
-
-  const dayNumber = parseInt(day);
-
-  // Function to get the English ordinal suffix (st, nd, rd, th)
-  const getOrdinalSuffix = (num) => {
-    const s = ["th", "st", "nd", "rd"];
-    const v = num % 100;
-    return s[(v - 20) % 10] || s[v] || s[0];
-  };
-
-  // Construct the date string in "Month Day" format
-  return `${monthName} ${dayNumber}${getOrdinalSuffix(dayNumber)}`;
 };
 
 const fetchSlots = async () => {
@@ -680,40 +424,7 @@ const removePlayer = async (slotId, role) => {
   }
 };
 
-const verifyAccessKey = async () => {
-  accessKeyError.value = '';
-  errorMessage.value = '';
-  successMessage.value = '';
 
-  if (!inputAccessKey.value.trim()) {
-    accessKeyError.value = 'Please enter the access key.';
-    return;
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('links')
-      .select('id')
-      .eq('id', linkId.value)
-      .eq('access_key', inputAccessKey.value)
-      .single();
-
-    if (error || !data) {
-      accessKeyError.value = 'Invalid access key.';
-      setTimeout(() => accessKeyError.value = '', 3000);
-    } else {
-      // THIS IS THE CRITICAL LINE
-      accessKey.value = inputAccessKey.value;
-      successMessage.value = 'President access granted!';
-      setTimeout(() => successMessage.value = '', 3000);
-      inputAccessKey.value = ''; // This clears the input field, but accessKey.value should retain its value.
-    }
-  } catch (error) {
-    console.error('Error verifying access key:', error);
-    accessKeyError.value = 'Error verifying access key.';
-    setTimeout(() => accessKeyError.value = '', 3000);
-  }
-};
 
 const copyToClipboard = (text) => {
   navigator.clipboard.writeText(text).then(() => {
@@ -748,4 +459,6 @@ onMounted(() => {
 });
 </script>
 
-<style></style>
+<style>
+
+</style>
