@@ -12,7 +12,7 @@ import CryptoJS from 'crypto-js'; // You'll need this for generateSign
 // Supabase Client Initialization
 // Substitua com suas variáveis de ambiente do Vercel
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_API_KEY || process.env.VITE_SUPABASE_API_KEY;
 const wosKey = import.meta.env.VITE_WOS_API_SECRET_KEY || process.env.WOS_API_SECRET_KEY || 'YOUR_SECRET_KEY_HERE';
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
