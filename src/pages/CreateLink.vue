@@ -63,10 +63,10 @@
                     <span>Copy link</span>
                 </button>
 
-                <a :href="generatedLink"
+                <router-link :to="generatedLink"
                     class="rounded-2xl border-b-3 hover:cursor-pointer hover:from-wosbutton-bh50  hover:to-wosbutton-bh100 border-wosbutton-bb bg-linear-to-t from-wosbutton-b50 to-wosbutton-b100 shadow-md inset-shadow-sm inset-shadow-white/60 px-9 py-2.5 text-white w-fit">
                     <span>Access link</span>
-                </a>
+                </router-link>
             </div>
         </div>
     </div>
