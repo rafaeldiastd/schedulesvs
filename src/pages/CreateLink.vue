@@ -63,10 +63,10 @@
                     <span>Copy link</span>
                 </button>
 
-                <router-link :to="generatedLink"
+                <a :href="generatedLink"
                     class="rounded-2xl border-b-3 hover:cursor-pointer hover:from-wosbutton-bh50  hover:to-wosbutton-bh100 border-wosbutton-bb bg-linear-to-t from-wosbutton-b50 to-wosbutton-b100 shadow-md inset-shadow-sm inset-shadow-white/60 px-9 py-2.5 text-white w-fit">
                     <span>Access link</span>
-                </router-link>
+                </a>
             </div>
         </div>
     </div>
@@ -98,7 +98,6 @@ const successMessage = ref('');
 
 const createLink = async () => {
     errorMessage.value = '';
-    successMessage.value = '';
     loading.value = true;
 
     const customLinkId = uuidv4();
@@ -136,8 +135,8 @@ const createLink = async () => {
         }
         newAccessKey.value = data.access_key;
         generatedLink.value = `${window.location}link/${data.id}`;
-        successMessage.value = 'Link created successfully!';
-        setTimeout(() => successMessage.value = '', 3000);
+        errorMessage.value = 'Link created successfully!';
+        setTimeout(() => errorMessage.value = '', 3000);
 
     } catch (error) {
         console.error('Error creating link:', error);
@@ -150,8 +149,8 @@ const createLink = async () => {
 
 const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-        successMessage.value = 'Copied to clipboard!';
-        setTimeout(() => successMessage.value = '', 3000);
+        errorMessage.value = 'Copied to clipboard!';
+        setTimeout(() => errorMessage.value = '', 3000);
     }).catch(err => {
         errorMessage.value = 'Failed to copy.';
         setTimeout(() => errorMessage.value = '', 3000);
