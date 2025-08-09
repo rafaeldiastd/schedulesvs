@@ -87,7 +87,7 @@
             <div class="flex flex-col gap-4 ">
                 <p class="text-wos-700 font-wos text-xs text-center flex flex-col items-center">
                     <p v-if="!loading" class="bg-wos-900 rounded px-3 py-2 w-fit m-2">Day: {{ linkData.vice_president_date_research }}</p>
-                    Choice your best schedule and add your ID. For change, talk your President or Responsabily
+                    Choice your best schedule and add your ID Player. For change, talk your President or Responsabily
                 </p>
                 <div class="bg-wos-900 rounded-xl py-4">
                     <p class="text-wos-700 font-wos text-xs text-center">
@@ -140,7 +140,7 @@
             <div class="flex flex-col gap-4 ">
                 <p class="text-wos-700 font-wos text-xs text-center flex flex-col items-center">
                     <p v-if="!loading" class="bg-wos-900 rounded px-3 py-2 w-fit m-2">Day: {{ linkData.vice_president_date_construction }}</p>
-                    Choice your best schedule and add your ID. For change, talk your President or Responsabily
+                    Choice your best schedule and add your ID Player. For change, talk your President or Responsabily
                 </p>
                 <div class="bg-wos-900 rounded-xl py-4">
                     <p class="text-wos-700 font-wos text-xs text-center">
